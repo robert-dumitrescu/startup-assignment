@@ -15,8 +15,7 @@ import RabbitMQService from "./services/RabbitService";
 
         fd = await open(file);
         const parser = fd.createReadStream().pipe(parse({
-            from: 3, //skip header
-            to: 5,  //only use a couple of domains for testing
+            from: 2, //skip header
             columns: ["domain"],
         }));
 

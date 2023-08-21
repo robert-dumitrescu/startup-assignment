@@ -10,7 +10,7 @@ class RabbitMQService {
             throw new Error("Missing RabbitMQ credentials");
         }
 
-        this.conn = await amqplib.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@localhost`);
+        this.conn = await amqplib.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST || 'localhost'}`);
         this.channel = await this.conn.createChannel();
 
         await this.channel.assertQueue(this.queue, {

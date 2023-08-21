@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronjob
+spec:
+  schedule: "0 0 * * *" # run every day at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: cronjob
+              image: cronjob
+              command: 
+                - npm
+                - run
+                - start:cron
+              imagePullPolicy: Never # Image should not be pulled
+              env: 
+                - name: RABBITMQ_HOST
+                  value: rabbitmq
+                - name: RABBITMQ_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: rabbitmq-default-user
+                      key: username
+                - name: RABBITMQ_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: rabbitmq-default-user
+                      key: password
+          restartPolicy: Never

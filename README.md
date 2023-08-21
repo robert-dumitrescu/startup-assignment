@@ -57,3 +57,13 @@ Requirements: `docker`, `docker-buildx`, `minikube` - setting these up is out of
 2. setup `RabbitMQ`:
     * install the cluster operator: `kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"`
     * create the actual cluster: `kubectl apply -f kubes/rabbitmq.yaml` - this is default hello-world RabbitMQ, it's sufficient for our PoC but might not be production ready
+3. Build the Docker images:
+    * cronjob (execute the following commands in the root directory of the repo):
+        - `eval $(minikube docker-env)`
+        - `docker build -t cronjob -f cronjob.Dockerfile .`
+4. Deploy on Kubernetes:
+    * `kubectl apply -f kubes/cronjob.yaml`
+
+
+# Work logs:
+Monday - I'm a little bit behind, I would have liked to have all the infrastructure part done, but I've only gotten the cron job ready. It should be slightly easier though, as I was still getting used to Kubernetes. Still, decent progress was made.
