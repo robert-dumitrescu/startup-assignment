@@ -1,7 +1,7 @@
 import { open, FileHandle } from "node:fs/promises";
 import { parse } from "csv-parse";
 
-import RabbitMQService from "./services/rabbitService";
+import RabbitMQService from "./services/RabbitService";
 
 (async () => {
     let fd: FileHandle | undefined;
@@ -27,9 +27,11 @@ import RabbitMQService from "./services/rabbitService";
 
             await rabbitService.sendMessage(record.domain);
         }
+
+        console.log("Finished pushing all messages");
     } catch (err) {
         console.log(err);
-        process.exit(1);
+        process.exit(1); //will this leak file descriptors?
     } finally {
         await fd?.close();
         await rabbitService?.close();
