@@ -1,12 +1,14 @@
-import { EnqueueStrategy, CheerioCrawler } from "crawlee";
+import { EnqueueStrategy, PlaywrightCrawler } from "crawlee";
 
 class Crawler {
     MAX_PAGES_PER_DOMAIN = parseInt(process.env.MAX_PAGES_PER_DOMAIN || "") || 10;
 
-    async crawlDomain(domain: string) {
-        let crawler = new CheerioCrawler({
+    async crawlDomain(domain: string, scrapePage: Function) {
+        let crawler = new PlaywrightCrawler({
             maxRequestsPerCrawl: this.MAX_PAGES_PER_DOMAIN,
-            async requestHandler({$, enqueueLinks}) {
+            async requestHandler({page, enqueueLinks}) {
+                await page.waitForLoadState();
+                await scrapePage(page);
                 await enqueueLinks({
                     strategy: EnqueueStrategy.SameHostname,
                 });
