@@ -41,14 +41,24 @@ class RabbitMQService {
         }
     }
 
+    setPrefetchSize(size: number) {
+        this.channel.prefetch(size);
+    }
+
     async receiveMessage(consumer: Function) {
         return this.channel.consume(this.queue, async (message) => {
             if (!message) {
                 return;
             }
 
-            await consumer(message.content.toString());
-            this.channel.ack(message);
+            try {
+                await consumer(message.content.toString());
+                this.channel.ack(message);
+            } catch {
+                this.channel.reject(message);
+            }
+        }, {
+            noAck: false,
         });
     }
 }

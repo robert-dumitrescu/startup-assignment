@@ -15,7 +15,7 @@ import RabbitMQService from "./services/RabbitService";
 
         fd = await open(file);
         const parser = fd.createReadStream().pipe(parse({
-            from: 2, //skip header
+            from: 3, //skip header
             to: 5,  //only use a couple of domains for testing
             columns: ["domain"],
         }));
@@ -25,6 +25,7 @@ import RabbitMQService from "./services/RabbitService";
                 continue;
             }
 
+            console.log(record.domain);
             await rabbitService.sendMessage(record.domain);
         }
 

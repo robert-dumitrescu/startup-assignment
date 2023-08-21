@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/amqplib": "^0.10.1",
     "amqplib": "^0.10.3",
+    "crawlee": "^3.5.1",
     "csv-parse": "^5.4.0"
   },
   "devDependencies": {
