@@ -17,39 +17,46 @@ class Scraper {
     }
 
     domain: string;
-    data: {[key: string]: string};
+    data: {
+        socialMediaLinks: Set<string>,
+        phoneNumbers: Set<string>,
+    };
     numbers: string[] | undefined;
 
     constructor(domain: string) {
         this.domain = domain;
-        this.data = {};
+        this.data = {
+            socialMediaLinks: new Set(),
+            phoneNumbers: new Set(),
+        };
         this.numbers = [];
 
         this.scrapePage = this.scrapePage.bind(this);
     }
 
     async scrapePage(page: Page) {
-        this.data = await this.extractSocialMediaLinks(page);
-        this.numbers = await this.extractPhoneNumbers(page);
+        await this.extractSocialMediaLinks(page);
+        await this.extractPhoneNumbers(page);
     }
 
     async extractSocialMediaLinks(page: Page) {
-        const links = await page.locator('a:visible');
+        const links = page.locator('a:visible');
         const count = await links.count();
-        const data: {[key: string]: string} = {};
 
         for (let i = 0; i < count; i++) {
             const href = await links.nth(i).getAttribute("href");
+            if (!href) {
+                continue;
+            }
+
             Object.keys(this.SOCIAL_MEDIA_MATCHERS).forEach((socialMedia) => {
                 this.SOCIAL_MEDIA_MATCHERS[socialMedia].forEach((regex) => {
-                    if (href?.match(regex)) {
-                        data[socialMedia] = href;
+                    if (href.match(regex)) {
+                        this.data.socialMediaLinks.add(href);
                     }
                 });
             });
         }
-
-        return data;
     }
 
     async extractPhoneNumbers(page: Page) {
@@ -60,18 +67,19 @@ class Scraper {
             return;
         }
 
+        //TODO: switch this to an async approach as it can take a bit long
         let numbers = findPhoneNumbersInText(text, {defaultCountry: "US"});
-        if (!numbers?.length) {
-            return;
-        }
 
-        return numbers.map((phoneNumber) => {
-            return phoneNumber.number.number.toString();
+        numbers.forEach((phoneNumber) => {
+            this.data.phoneNumbers.add(phoneNumber.number.number.toString());
         });
     }
 
     getScrapedData() {
-        return this.data;
+        return {
+            socialMediaLinks: Array.from(this.data.socialMediaLinks),
+            phoneNumbers: Array.from(this.data.phoneNumbers),
+        }
     }
 }
 
