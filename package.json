@@ -10,13 +10,15 @@
   "license": "ISC",
   "keywords": [],
   "dependencies": {
-    "@types/amqplib": "^0.10.1",
     "amqplib": "^0.10.3",
     "crawlee": "^3.5.1",
     "csv-parse": "^5.4.0",
+    "libphonenumber-js": "^1.10.41",
     "playwright": "^1.37.1"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.1",
+    "@types/node": "^20.5.1",
     "typescript": "^5.1.6"
   }
 }
