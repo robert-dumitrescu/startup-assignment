@@ -50,3 +50,10 @@ Not much I can write about this, it was a soft requirement so I'll be using it t
 Again, nothing to write home about it, any basic server will do as long as it can interact with the Elasticsearch pods.
 
 
+# Kubernetes setup
+
+Requirements: `docker`, `docker-buildx`, `minikube` - setting these up is out of scope
+1. start `minikube` with some decent resources: `minikube start --cpus 8 --memory 16384`
+2. setup `RabbitMQ`:
+    * install the cluster operator: `kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"`
+    * create the actual cluster: `kubectl apply -f kubes/rabbitmq.yaml` - this is default hello-world RabbitMQ, it's sufficient for our PoC but might not be production ready
