@@ -55,7 +55,7 @@ class RabbitMQService {
                 await consumer(message.content.toString());
                 this.channel.ack(message);
             } catch {
-                this.channel.reject(message);
+                this.channel.reject(message, false);
             }
         }, {
             noAck: false,
