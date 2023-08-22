@@ -12,9 +12,11 @@
   "license": "ISC",
   "keywords": [],
   "dependencies": {
+    "@elastic/elasticsearch": "^8.9.0",
     "amqplib": "^0.10.3",
     "crawlee": "^3.5.1",
     "csv-parse": "^5.4.0",
+    "is-reachable": "^5.2.1",
     "libphonenumber-js": "^1.10.41",
     "playwright": "^1.37.1"
   },
