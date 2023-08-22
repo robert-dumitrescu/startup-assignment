@@ -55,6 +55,7 @@ class RabbitMQService {
                 await consumer(message.content.toString());
                 this.channel.ack(message);
             } catch {
+                //right now the message will just be discarded, but in a production environment we should set up a dead letter exchange / queue to better monitor fails
                 this.channel.reject(message, false);
             }
         }, {

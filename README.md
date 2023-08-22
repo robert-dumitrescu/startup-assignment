@@ -65,7 +65,8 @@ Requirements: `docker`, `docker-buildx`, `minikube` - setting these up is out of
     * cronjob (execute the following commands in the root directory of the repo):
         - `eval $(minikube docker-env)`
         - `docker build -t cronjob -f cronjob.Dockerfile .`
-4. Deploy on Kubernetes:
+        - `docker build -t worker -f worker.Dockerfile .`
+5. Deploy on Kubernetes:
     * `kubectl apply -f kubes/cronjob.yaml`
 
 
@@ -79,4 +80,5 @@ In order to run it from the local machine you need to do the following:
 - run the actual task: `ES_PASS=$ES_PASS node build/populateESOneShot.js`
 
 # Work logs:
-Monday - I'm a little bit behind, I would have liked to have all the infrastructure part done, but I've only gotten the cron job ready. It should be slightly easier though, as I was still getting used to Kubernetes. Still, decent progress was made.
+Monday (~8h) - I'm a little bit behind, I would have liked to have all the infrastructure part done, but I've only gotten the cron job ready. It should be slightly easier though, as I was still getting used to Kubernetes. Still, decent progress was made.
+Tuesday (~2h) - Caught up with where I wanted to be, managed to setup and connect to Elasticsearch

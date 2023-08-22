@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc -p tsconfig.json",
-    "start:cron": "node build/generateMessageCron.js"
+    "start:cron": "node build/generateMessageCron.js",
+    "start:worker": "node build/worker.js"
   },
   "author": "",
   "license": "ISC",
