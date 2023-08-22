@@ -69,5 +69,14 @@ Requirements: `docker`, `docker-buildx`, `minikube` - setting these up is out of
     * `kubectl apply -f kubes/cronjob.yaml`
 
 
+# One shot task to populate the Elasticseach cluster
+I was provided with some data already scraped from the websites and I feel like the spirit of the challenge was to merge the data with my scraped data on the Elasticsearch cluster, rather than parsing the csv then adding the scraped data and pushing it in one go. (The scenario I have in mind is maybe there are different crawlers looking for different types of data so we don't know exactly how the schema will look in the end)
+For this I wrote a super simple script that just reads the csv file, purges whatever data is already on Elasticsearch and pushes the provided data.
+In order to run it from the local machine you need to do the following:
+- forward the elasticsearch port (in a separate terminal): `kubectl port-forward service/elasticsearch-es-http 9200`
+- extract the password in an env variable: `ELASTICSEARCH_PASS=$(kubectl get secret elasticsearch-es-elastic-user -o go-template='{{.data.elastic | base64decode}}')`
+- compile the typescript code: `npx tsc --project ./`
+- run the actual task: `ES_PASS=$ES_PASS node build/populateESOneShot.js`
+
 # Work logs:
 Monday - I'm a little bit behind, I would have liked to have all the infrastructure part done, but I've only gotten the cron job ready. It should be slightly easier though, as I was still getting used to Kubernetes. Still, decent progress was made.
