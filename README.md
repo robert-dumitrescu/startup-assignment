@@ -44,15 +44,25 @@ I know the idea would be to use AI / ML to extract the data as conventional meth
 * Addresses: this is were things break down and AI is needed, but maybe [node-postal](https://www.npmjs.com/package/node-postal) can do it? Otherwise use a service like [geocode.xyz](https://geocode.xyz/api) but it's paid so it's a no go.
 
 ## Elasticsearch
-Not much I can write about this, it was a soft requirement so I'll be using it to store the structured data
-.
+Not much I can write about this, it was a soft requirement so I'll be using it to store the structured data.
+
+**Querying the data** - I went with a `dis_max` ([disjunction max query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-dis-max-query.html)) approach which takes multiple queries and returns documents that match those queries ranked on how well Elasticsearch judges they match. This, combined with a [fuzzy](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html) query means we can handle user typos (up to a certain point - this isn't a full semantic search afterall).
+
 ## Handling user requests
-Again, nothing to write home about it, any basic server will do as long as it can interact with the Elasticsearch pods.
+Again, nothing to write home about it, any basic server will do as long as it can interact with the Elasticsearch pods.  
+I went with Express for simplicity and familiarity. 
+
+In order to do some basic parameter validation I used `celebrate` and `joi` which provides a way to enforce a schema and it integrates very nicely with the middleware way of doing things in Express.  
+We'll only accept numeric phone numbers with an optional `+` at the beginning as this is the standard way of inputting phone numbers online.  
+The domain check is a bit strict right now, as it validates the format: `[alphanumeric string].[letters]`. This doesn't allow for urls which is probably what most people will want to use, but we could probably relax that and leverage the `URL` module, specifically `URL.canParse` to check if it's a valid URL and `URL.hostname` to extract the domain.
 
 
 # Kubernetes setup
 
-Requirements: `docker`, `docker-buildx`, `minikube` - setting these up is out of scope
+Requirements:
+* `docker`, `docker-buildx`, `minikube` - setting these up is out of scope
+* `sample-websites.csv` and `sample-websites-company-names.csv` should be copied in the root of the repo - I won't be providing them due to reasons  
+
 1. start `minikube` with some decent resources: `minikube start --cpus 8 --memory 16384`
 2. setup `RabbitMQ`:
     * install the cluster operator: `kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"`
@@ -82,3 +92,14 @@ In order to run it from the local machine you need to do the following:
 # Work logs:
 Monday (~8h) - I'm a little bit behind, I would have liked to have all the infrastructure part done, but I've only gotten the cron job ready. It should be slightly easier though, as I was still getting used to Kubernetes. Still, decent progress was made.
 Tuesday (~2h) - Caught up with where I wanted to be, managed to setup and connect to Elasticsearch
+Wednesday (~4h) - Worked on the server
+
+
+# Some resources I found useful (apart from the official documentation):
+
+[Great step by step tutorial on how to deploy an app in Kubernetes](https://theekshanawj.medium.com/kubernetes-deploying-a-nodejs-app-in-minikube-local-development-92df31e0b037)  
+[Good introduction to Kubernetes](https://www.digitalocean.com/community/tutorials/how-to-use-minikube-for-local-kubernetes-development-and-testing)  
+[CSV parsing overview in NodeJS](https://blog.logrocket.com/complete-guide-csv-files-node-js/)  
+[Cronjob in Kubernetes example](https://www.twilio.com/blog/automate-scripts-golang-minikube-cronjobs)  
+[Excellent guide on scraping](https://blog.logrocket.com/node-js-web-scraping-tutorial/)  
+[How to get all links on a page in Playwright](https://stackoverflow.com/questions/70702820/how-can-i-click-on-all-links-matching-a-selector-with-playwright)
