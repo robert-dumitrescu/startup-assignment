@@ -7,7 +7,7 @@ class Crawler {
         let crawler = new PlaywrightCrawler({
             launchContext: {
                 launchOptions: {
-                    args: ["--ignore-certificate-errors"],
+                    args: ["--ignore-certificate-errors", "--ignore-https-errors"],
                 }
             },
             maxRequestsPerCrawl: this.MAX_PAGES_PER_DOMAIN,
