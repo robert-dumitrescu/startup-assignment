@@ -1,4 +1,5 @@
 import { Client } from "@elastic/elasticsearch";
+import { QueryDslQueryContainer, SearchHit } from "@elastic/elasticsearch/lib/api/types";
 
 class ElasticSearch {
     client!: Client;
@@ -80,6 +81,43 @@ class ElasticSearch {
             doc: {...existingDoc},
         });
     }
+
+    async getDocumentByDomain(params: {[key: string]: string}): Promise<SearchHit[]> {
+        //At this point I should start looking into an ORM or a querybuilder (https://www.npmjs.com/package/elastic-orm)
+        let queries: QueryDslQueryContainer[] = [];
+
+        if (params.domain) {
+            queries.push({
+                fuzzy: {
+                    url: {
+                        value: params.domain,
+                    },
+                },
+            });
+        }
+
+        if (params.phoneNumber) {
+            queries.push({
+                fuzzy: {
+                    phoneNumbers: {
+                        value: params.phoneNumber,
+                    },
+                },
+            });
+        }
+
+        let data = await this.client.search({
+            index: "companies",
+            query: {
+                dis_max: {
+                    queries: queries,
+                },
+            },
+        });
+
+        return data.hits.hits;
+    }
+
 }
 
 export default ElasticSearch;
