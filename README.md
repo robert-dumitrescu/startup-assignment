@@ -20,7 +20,7 @@ This whole infrastructure will live inside a local Kubernetes cluster managed by
 # Going into details:
 
 ## Why a cron job
-This might be a slight oversimplification, I'm sure `$startup` uses a different mechanism here, but for the sake of this PoC it will work fine, and maybe with some smart use of streams could be scaled up to millions of domains.  
+This might be a slight oversimplification, I'm sure `$startup` uses a different mechanism here, but for the sake of this PoC it will work fine and maybe with some smart use of streams could be scaled up to millions of domains.  
 Regardless, due to the separation provided by RabbitMQ it should be fairly easy to swap this component out for a more robust method of generating the messages, if needed in the future.
 
 ## RabbitMQ
@@ -29,7 +29,7 @@ My initial thought was to actually use a basic MySQL table with something like: 
 I haven't touched RabbitMQ before, but it looks like it comes out of the box with really good scaling and queues that guarantee one message per worker so this is an overall better approach at the cost of working with an unfamiliar tech and maybe a more complex setup.
 
 ## Worker
-I'll keep things simple here, just a basic wait for message loop or mechanism -> on receive message pass it to a Crawler class and get the HTML -> pass the HTML to a Scraper class to extract the data -> pass the data to an Elasticsearch class and send it to ES -> acknowledge the message. On error nack the message - we don't care *a lot* about what happens to the message next as the cron job will generate a new message for it at the next run anyway.
+I'll keep things simple here, just a basic wait for message loop or mechanism -> on receive message pass it to a Crawler class and get the HTML -> pass the HTML to a Scraper class to extract the data -> pass the data to an Elasticsearch class and send it to ES -> acknowledge the message. On error nack the message - we don't care *a lot* about what happens to the message next as the cron job will generate a new message for it at the next run anyway, but it would be a good idea to use a dead letter exchange / queue (out of scope).
 
 ### Crawling
 For crawling in NodeJS I found [crawlee](https://crawlee.dev/). It looks like the perfect tool for the job as it has multiple types of crawlers, HTTP & headless browsers, has anti-blocking features and out of the box scaling. What could I even want more?
@@ -63,6 +63,8 @@ Requirements:
 * `docker`, `docker-buildx`, `minikube` - setting these up is out of scope
 * `sample-websites.csv` and `sample-websites-company-names.csv` should be copied in the root of the repo - I won't be providing them due to reasons  
 
+
+Steps:
 1. start `minikube` with some decent resources: `minikube start --cpus 8 --memory 16384`
 2. setup `RabbitMQ`:
     * install the cluster operator: `kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"`
@@ -86,7 +88,6 @@ Requirements:
     * `minikube service server-service --url`
 
 
-
 # One shot task to populate the Elasticseach cluster
 I was provided with some data already scraped from the websites and I feel like the spirit of the challenge was to merge the data with my scraped data on the Elasticsearch cluster, rather than parsing the csv then adding the scraped data and pushing it in one go. (The scenario I have in mind is maybe there are different crawlers looking for different types of data so we don't know exactly how the schema will look in the end)
 For this I wrote a super simple script that just reads the csv file, purges whatever data is already on Elasticsearch and pushes the provided data.
@@ -94,11 +95,11 @@ In order to run it from the local machine you need to do the following:
 - forward the elasticsearch port (in a separate terminal): `kubectl port-forward service/elasticsearch-es-http 9200`
 - extract the password in an env variable: `ELASTICSEARCH_PASS=$(kubectl get secret elasticsearch-es-elastic-user -o go-template='{{.data.elastic | base64decode}}')`
 - compile the typescript code: `npx tsc --project ./`
-- run the actual task: `ES_PASS=$ES_PASS node build/populateESOneShot.js`
+- run the actual task: `ES_PASS=$ELASTICSEARCH_PASS node build/populateESOneShot.js`
 
 # Work logs:
-Monday (~8h) - I'm a little bit behind, I would have liked to have all the infrastructure part done, but I've only gotten the cron job ready. It should be slightly easier though, as I was still getting used to Kubernetes. Still, decent progress was made.
-Tuesday (~2h) - Caught up with where I wanted to be, managed to setup and connect to Elasticsearch
+Monday (~8h) - I'm a little bit behind, I would have liked to have all the infrastructure part done, but I've only gotten the cron job ready. It should be slightly easier though, as I was still getting used to Kubernetes. Still, decent progress was made.  
+Tuesday (~2h) - Caught up with where I wanted to be, managed to setup and connect to Elasticsearch  
 Wednesday (~4h) - Worked on the server
 
 
