@@ -5,6 +5,11 @@ class Crawler {
 
     async crawlDomain(domain: string, scrapePage: Function) {
         let crawler = new PlaywrightCrawler({
+            launchContext: {
+                launchOptions: {
+                    args: ["--ignore-certificate-errors"],
+                }
+            },
             maxRequestsPerCrawl: this.MAX_PAGES_PER_DOMAIN,
             async requestHandler({page, enqueueLinks}) {
                 await page.waitForLoadState();

@@ -66,22 +66,22 @@ Requirements:
 1. start `minikube` with some decent resources: `minikube start --cpus 8 --memory 16384`
 2. setup `RabbitMQ`:
     * install the cluster operator: `kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"`
-    * create the actual cluster: `kubectl apply -f kubes/rabbitmq.yaml` - this is default hello-world RabbitMQ, it's sufficient for our PoC but might not be production ready
+    * create the actual cluster: `kubectl apply -f infra/rabbitmq.yaml` - this is default hello-world RabbitMQ, it's sufficient for our PoC but might not be production ready
 3. setup `Elasticsearch`:
     * `kubectl create -f https://download.elastic.co/downloads/eck/2.9.0/crds.yaml`
     * `kubectl apply -f https://download.elastic.co/downloads/eck/2.9.0/operator.yaml`
-    * `kubectl apply -f kubes/elasticsearch.yaml`
+    * `kubectl apply -f infra/elasticsearch.yaml`
 4. Build the `Docker` images:
     * cronjob (execute the following commands in the root directory of the repo):
         - `eval $(minikube docker-env)`
-        - `docker build -t cronjob -f cronjob.Dockerfile .`
-        - `docker build -t worker -f worker.Dockerfile .`
-        - `docker build -t server -f server.Dockerfile .`
+        - `docker build -t cronjob -f infra/cronjob.Dockerfile .`
+        - `docker build -t worker -f infra/worker.Dockerfile .`
+        - `docker build -t server -f infra/server.Dockerfile .`
 5. Deploy on `Kubernetes`:
-    * `kubectl apply -f kubes/cronjob.yaml`
-    * `kubectl apply -f kubes/worker.yaml`
-    * `kubectl apply -f kubes/server.yaml`
-    * `kubectl apply -f kubes/server-service.yaml` #using a LoadBalancer type service to expose a port to the server
+    * `kubectl apply -f infra/cronjob.yaml`
+    * `kubectl apply -f infra/worker.yaml`
+    * `kubectl apply -f infra/server.yaml`
+    * `kubectl apply -f infra/server-service.yaml` #using a LoadBalancer type service to expose a port to the server
 6. Get the url of the service:
     * `minikube service server-service --url`
 
