@@ -4,9 +4,9 @@ import Crawler from "./services/Crawler";
 import Scraper from "./services/Scraper";
 import ElasticSearch from "./services/ElasticSearch";
 
-let rabbitService: RabbitMQService;
-let elasticService: ElasticSearch;
-let crawler: Crawler;
+const rabbitService: RabbitMQService = new RabbitMQService();
+const elasticService: ElasticSearch = new ElasticSearch();
+const crawler: Crawler = new Crawler();
 
 const consumer = async (domain: string) => {
     if (!domain) {
@@ -39,14 +39,10 @@ const consumer = async (domain: string) => {
 }
 
 (async () => {
-    rabbitService = new RabbitMQService();
     await rabbitService.init();
-    elasticService = new ElasticSearch();
     await elasticService.init();
 
     rabbitService.setPrefetchSize(1);   //ensure we only process one domain at a time - we could increase this but it would take some changes to the Crawler class
-
-    crawler = new Crawler();
 
     await rabbitService.receiveMessage(consumer);
 })();
