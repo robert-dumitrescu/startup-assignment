@@ -46,7 +46,8 @@ I know the idea would be to use AI / ML to extract the data as conventional meth
 ## Elasticsearch
 Not much I can write about this, it was a soft requirement so I'll be using it to store the structured data.
 
-**Querying the data** - I went with a `dis_max` ([disjunction max query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-dis-max-query.html)) approach which takes multiple queries and returns documents that match those queries ranked on how well Elasticsearch judges they match. This, combined with a [fuzzy](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html) query means we can handle user typos (up to a certain point - this isn't a full semantic search afterall).
+**Querying the data** - I went with a `dis_max` ([disjunction max query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-dis-max-query.html)) approach which takes multiple queries and returns documents that match those queries ranked on how well Elasticsearch judges they match. This, combined with a [fuzzy](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html) query means we can handle user typos (up to a certain point - this isn't a full semantic search afterall).  
+**How to query by company name** - one of the requirements was to figure out a way to also query the data by using the company name. A fuzzy search as above might work, but again only up to a certain point. I think a better approach would be to use a [full text search](https://www.elastic.co/guide/en/elasticsearch/reference/current/full-text-queries.html) on `company_all_available_names` but more research is required on this topic as it seems quite complex.
 
 ## Handling user requests
 Again, nothing to write home about it, any basic server will do as long as it can interact with the Elasticsearch pods.  
@@ -97,10 +98,22 @@ In order to run it from the local machine you need to do the following:
 - compile the typescript code: `npx tsc --project ./`
 - run the actual task: `ES_PASS=$ELASTICSEARCH_PASS node build/populateESOneShot.js`
 
+
+# Caveats, mentions, improvements
+
+1. Monitoring? 
+    * How do we know we can add more workers or can remove workers? My best guess would be we can look at the RabbitMQ queue - as long as the message count goes down at a reasonable rate it means things are fine. Obviously we'll need to figure out a better approach here.
+    * Problematic / unreachable domains - with the current architecture we can analyze the dead letter queue, if one domain keeps showing up it should be flagged to be manually checked / removed from the automated scraping process
+2. Testing? Maybe keep a short list of domains with known outputs and compare those with the results of our scraping?
+3. GDPR? Technically we're only scraping public data and only for companies so GDPR shouldn't be a concern, but who knows? - someone will have to ensure this is compliant.
+4. Performance - the crawler is very slow due to the constant opening / closing of `Chromium` after each domain (about half the time spent is initializing the browser). This is mainly due to my desire to leverage the `maxRequestsPerCrawl`. It would be much faster to manually track the requests per domain and keeping the process open instead of fully terminating the crawler.
+5. How do we deal with wrong data? I simply don't know
+
+
 # Work logs:
 Monday (~8h) - I'm a little bit behind, I would have liked to have all the infrastructure part done, but I've only gotten the cron job ready. It should be slightly easier though, as I was still getting used to Kubernetes. Still, decent progress was made.  
 Tuesday (~2h) - Caught up with where I wanted to be, managed to setup and connect to Elasticsearch  
-Wednesday (~4h) - Worked on the server
+Wednesday (~4h) - Worked on the server, documentation improvements
 
 
 # Some resources I found useful (apart from the official documentation):
@@ -110,4 +123,6 @@ Wednesday (~4h) - Worked on the server
 [CSV parsing overview in NodeJS](https://blog.logrocket.com/complete-guide-csv-files-node-js/)  
 [Cronjob in Kubernetes example](https://www.twilio.com/blog/automate-scripts-golang-minikube-cronjobs)  
 [Excellent guide on scraping](https://blog.logrocket.com/node-js-web-scraping-tutorial/)  
-[How to get all links on a page in Playwright](https://stackoverflow.com/questions/70702820/how-can-i-click-on-all-links-matching-a-selector-with-playwright)
+[How to get all links on a page in Playwright](https://stackoverflow.com/questions/70702820/how-can-i-click-on-all-links-matching-a-selector-with-playwright)  
+[Elastic search full text query 1](https://medium.com/inspiredbrilliance/a-guide-to-perform-fulltext-search-in-elasticsearch-273a2f10d20e)  
+[Elastic search full text query 2](https://www.youtube.com/watch?v=4DgmQXM3_lI)
