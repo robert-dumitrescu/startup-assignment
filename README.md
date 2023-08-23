@@ -71,13 +71,20 @@ Requirements:
     * `kubectl create -f https://download.elastic.co/downloads/eck/2.9.0/crds.yaml`
     * `kubectl apply -f https://download.elastic.co/downloads/eck/2.9.0/operator.yaml`
     * `kubectl apply -f kubes/elasticsearch.yaml`
-4. Build the Docker images:
+4. Build the `Docker` images:
     * cronjob (execute the following commands in the root directory of the repo):
         - `eval $(minikube docker-env)`
         - `docker build -t cronjob -f cronjob.Dockerfile .`
         - `docker build -t worker -f worker.Dockerfile .`
-5. Deploy on Kubernetes:
+        - `docker build -t server -f server.Dockerfile .`
+5. Deploy on `Kubernetes`:
     * `kubectl apply -f kubes/cronjob.yaml`
+    * `kubectl apply -f kubes/worker.yaml`
+    * `kubectl apply -f kubes/server.yaml`
+    * `kubectl apply -f kubes/server-service.yaml` #using a LoadBalancer type service to expose a port to the server
+6. Get the url of the service:
+    * `minikube service server-service --url`
+
 
 
 # One shot task to populate the Elasticseach cluster
